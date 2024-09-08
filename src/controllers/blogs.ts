@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 import httpStatus from "http-status";
-import { handleError } from "./error-handler";
+import { handleError } from "../utils/error-handler";
 import Models from "../models";
+import email from "../utils/email";
 
 export class BlogsController {
 
@@ -18,16 +19,19 @@ export class BlogsController {
                 const blogDetails = await Models.Blog.findOne({ title: req.query.title }).exec();
                 return res.status(httpStatus.OK).json(blogDetails);
             } else {
-                const page = parseInt(<string>req?.query?.page) - 1;
+                const page = parseInt(<string>req?.query?.page);
                 if (!req?.query?.page || page <= 0) {
-                    return res.status(httpStatus.OK).json({
+                    return res.status(httpStatus.BAD_REQUEST).json({
                         message: "page must be a valid number"
                     });
                 }
-                const offset: number = page * 10;
+                const offset: number = (page - 1) * 10;
                 const blogList: any = await Models.Blog.find().sort({ created_at: 'desc' }).skip(offset).limit(10).exec();
-
-                return res.status(httpStatus.OK).json(blogList);
+                const totalBlogs: any = await Models.Blog.countDocuments();
+                return res.status(httpStatus.OK).json({
+                    blogs: blogList,
+                    count: totalBlogs
+                });
             }
         } catch (err: any) {
             handleError(req, res, err);
@@ -67,14 +71,14 @@ export class BlogsController {
      */
     postBlog = async (req: Request, res: Response) => {
         try {
-            try {
-                await Models.Blog.create(req.body);
-            } catch (err: any) {
+            const isBlogExists = await Models.Blog.findOne({ title: req.body.title });
+            if (isBlogExists) {
                 return res.status(httpStatus.BAD_REQUEST).json({
-                    message: "Unable to create blog",
-                    error: err.message
+                    message: "Blog with this title already exists",
                 });
             }
+            await Models.Blog.create(req.body);
+            email.sendNewPostEmailToAll(req.body);
             return res.status(httpStatus.OK).json({
                 message: "Blog posted successfully"
             });
@@ -111,14 +115,7 @@ export class BlogsController {
      */
     deleteBlog = async (req: Request, res: Response) => {
         try {
-            try {
-                await Models.Blog.deleteOne({ name: req.body.name });
-            } catch (err: any) {
-                return res.status(httpStatus.BAD_REQUEST).json({
-                    message: "Unable to create blog",
-                    error: err.message
-                });
-            }
+            await Models.Blog.deleteOne({ title: req.body.title });
             return res.status(httpStatus.OK).json({
                 message: "Blog deleted successfully"
             });

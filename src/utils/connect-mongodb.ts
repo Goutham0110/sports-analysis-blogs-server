@@ -8,6 +8,7 @@ export default async function initDatabase() {
         db.on('reconnected', () => console.log('Reconnecting to MongoDB'));
         db.on('disconnected', () => console.log('Disconnected from MongoDB'));
         mongoose.connect(configs.MONGODB_CONNECTION_URL);
+        return db;
     } catch (err) {
         console.log("Failed to connect to Database");
         console.log(err);

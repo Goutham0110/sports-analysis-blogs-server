@@ -6,8 +6,8 @@ import initDatabase from './src/utils/connect-mongodb';
 import configs from './src/config/configs';
 import router from './src/routers';
 
-const app = express();
 initDatabase();
+const app = express();
 
 app.use(cors());
 app.use(bodyParser.json());
