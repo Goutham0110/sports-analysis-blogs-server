@@ -64,7 +64,7 @@ With the right approach to training, anyone can conquer the marathon distance. I
 const createMany = async (count: number) => {
     for (let i = 1; i <= count; i++) {
         const blogData = {
-            title: `Test Blog for featured again ${i}`,
+            title: `Test Blog pages ${i}`,
             author: "Tony stark",
             description: 'Laura Mitchell breaks down essential marathon training strategies, focusing on building endurance and mental toughness for a successful race. Some more words added to max out the description and I think this should be pretty good.',
             featured: true,
@@ -83,7 +83,7 @@ const deleteAll = async () => {
 const main = (async () => {
     const db = await initDatabase();
     try {
-        await createMany(3);
+        await createMany(2);
     } catch (err) {
         console.log(err);
     } finally {
