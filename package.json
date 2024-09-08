@@ -5,8 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "test": "ts-node-dev ./test.ts",
-    "build": "rm -rf ./build && tsc",
-    "prod": "rm -rf ./build && tsc && node ./build/index.js",
+    "build": "npm i && rm -rf ./build && tsc",
+    "prod": "node ./build/index.js",
     "dev": "ts-node-dev --respawn --pretty --transpile-only ./index.ts"
   },
   "repository": {
